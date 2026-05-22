@@ -47,7 +47,8 @@ type Client struct {
 
 // 30 seconds was chosen as it's the same duration as http.DefaultTransport's
 // timeout.
-var defaultDialer = net.Dialer{Timeout: 30 * time.Second}
+var DefaultDialer = net.Dialer{Timeout: 30 * time.Second}
+var DefaultNetwork = "tcp"
 
 // Dial returns a new Client connected to an SMTP server at addr. The addr must
 // include a port, as in "mail.example.com:smtp".
@@ -55,7 +56,7 @@ var defaultDialer = net.Dialer{Timeout: 30 * time.Second}
 // This function returns a plaintext connection. To enable TLS, use
 // DialStartTLS.
 func Dial(addr string) (*Client, error) {
-	conn, err := defaultDialer.Dial("tcp", addr)
+	conn, err := DefaultDialer.Dial(DefaultNetwork, addr)
 	if err != nil {
 		return nil, err
 	}
@@ -70,10 +71,10 @@ func Dial(addr string) (*Client, error) {
 // A nil tlsConfig is equivalent to a zero tls.Config.
 func DialTLS(addr string, tlsConfig *tls.Config) (*Client, error) {
 	tlsDialer := tls.Dialer{
-		NetDialer: &defaultDialer,
+		NetDialer: &DefaultDialer,
 		Config:    tlsConfig,
 	}
-	conn, err := tlsDialer.Dial("tcp", addr)
+	conn, err := tlsDialer.Dial(DefaultNetwork, addr)
 	if err != nil {
 		return nil, err
 	}
